@@ -1,37 +1,37 @@
 package Shift_Schedule.Main;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class dayTypeCounter {
 
-    public int[] dayTypeCount(int year ,int month) {
+    public Map getDaliyInfo(int year ,int month) {
     	
 //        int year = 2023;
 //        int month = 12; 
 
         int daysInMonth = LocalDate.of(year, month, 1).lengthOfMonth();
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-
-        int workdays = 0;
-        int holidays = 0;
-
+        Map day_Inform = new HashMap();
+        
         for (int i = 0; i < daysInMonth; i++) {
-            LocalDate currentDate = firstDayOfMonth.plusDays(i);
-
-            // Check if the current date is a weekend (Saturday or Sunday)
-            if (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY || currentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {                
-            	holidays++;
-            } else {
-                workdays++;
-            }
+        	
+        	LocalDate currentDate = firstDayOfMonth.plusDays(i);
+//        	當日所需人手
+        	Integer employee_Needed = 2;
+        	if(currentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        		employee_Needed = 1;
+        	}
+//        	日期
+        	day_Inform.put("DayOfMonth",currentDate.getDayOfMonth());
+//        	星期幾
+        	day_Inform.put("DayOfWeek",currentDate.getDayOfWeek());
+        	day_Inform.put("employee_Needed",employee_Needed);        	      	        	
         }
         
-        int[] dayCountResult = { holidays, workdays } ;
         
-//        System.out.println("Workdays: " + workdays);
-//        System.out.println("Holidays: " + holidays);
-        
-        return dayCountResult;
+        return day_Inform;
     }
 }
 
