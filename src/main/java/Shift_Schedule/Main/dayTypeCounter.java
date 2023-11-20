@@ -13,6 +13,8 @@ public class dayTypeCounter {
 
         int daysInMonth = LocalDate.of(year, month, 1).lengthOfMonth();
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+//        System.out.println("firstDayOfMonth = " + firstDayOfMonth);
+//        System.out.println("daysInMonth = " + daysInMonth);
         Map day_Inform = new HashMap();
         
         for (int i = 0; i < daysInMonth; i++) {
@@ -23,13 +25,20 @@ public class dayTypeCounter {
         	if(currentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
         		employee_Needed = 1;
         	}
+        	
+//        	System.out.println("DayOfMonth = " + currentDate.getDayOfMonth());
+//        	System.out.println("DayOfWeek = " + currentDate.getDayOfWeek().getValue() );
+//        	System.out.println("employee_Needed = " + employee_Needed);
+        	
 //        	日期
-        	day_Inform.put("DayOfMonth",currentDate.getDayOfMonth());
+        	day_Inform.put("DayOfMonth" + i,currentDate.getDayOfMonth());
 //        	星期幾
-        	day_Inform.put("DayOfWeek",currentDate.getDayOfWeek());
-        	day_Inform.put("employee_Needed",employee_Needed);        	      	        	
+        	day_Inform.put("DayOfWeek" + i,currentDate.getDayOfWeek().getValue());
+//        	day_Inform.put("DayOfWeek",currentDate.getDayOfWeek());
+        	day_Inform.put("employee_Needed" + i,employee_Needed);        	      	        	
         }
         
+        day_Inform.put("daysInMonth", daysInMonth);
         
         return day_Inform;
     }
