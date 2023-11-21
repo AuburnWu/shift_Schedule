@@ -3,7 +3,7 @@ package Shift_Schedule.Main;
 public class Employee {
 	private String Name;			//員工名子
 	private String DesignateDay;	//指定休假日
-	private Integer RestCount;		//休假日計數
+	private Integer RestCount = 0;		//休假日計數(預設指定三天)
 	
 	public Integer getRestCount() {
 		return RestCount;
