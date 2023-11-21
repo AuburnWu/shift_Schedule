@@ -2,6 +2,7 @@ package Shift_Schedule.Main;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class shift_Schaudle_Genrator {
@@ -64,23 +65,26 @@ public class shift_Schaudle_Genrator {
 				}
 			});
 //			判斷待指派人數是否足夠，否則以原表單指派
-			if (employee_List.size() - adjest_List.size() < daily_Needed) {
-				employee_List.removeAll(adjest_List);
-				System.out.println("employee_List.size = " +employee_List.size());
-				System.out.println("adjest_List.size = " +adjest_List.size()  );
+			if (employee_List.size() - adjest_List.size() >= daily_Needed) {
+				employee_List.removeAll(adjest_List);	
+			}else {
+//				System.out.println("employee_List.size = " +employee_List.size());
+//				System.out.println("adjest_List.size = " +adjest_List.size()  );
 				System.out.println("----conflict----");
 			}
 			
 //			以處理好的人員表隨機分派班次
 //			System.out.println("intro_List.size = " + employee_List.size());
-			ArrayList shift_List = ssg.getRandomEmployee(employee_List, daily_Needed);
-//			System.out.println("shift_List.size = " + shift_List.size());
+			Map assignMap = ssg.getRandomEmployee(employee_List, daily_Needed);
+			ArrayList shiftList = (ArrayList)assignMap.get("shiftList");
+//			System.out.println("shift_List.size = " + shiftList.size());
+			
 //			結果
 			if(dayOfWeek == 7) {
-				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shift_List.get(0));
+				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shiftList.get(0));
 			}else {
-				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shift_List.get(0)
-				+ ", afternoon : " + shift_List.get(1));
+				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shiftList.get(0)
+				+ ", afternoon : " + shiftList.get(1));
 			}
 			
 
@@ -88,24 +92,36 @@ public class shift_Schaudle_Genrator {
 
 	}
 
-	private ArrayList<String> getRandomEmployee(ArrayList<Employee> employee_Arr, Integer daily_Needed) {
+	private Map<String,ArrayList> getRandomEmployee(ArrayList<Employee> employeeList, Integer dailyNeeded) {
 		StringBuilder randomSymbolString = new StringBuilder();
 		SecureRandom random = new SecureRandom();
-		Integer length = employee_Arr.size();
-		ArrayList<String> shift_List = new ArrayList<String>();
+		Integer length = employeeList.size();
+		ArrayList<String> shiftList = new ArrayList<String>();
+		ArrayList<String> restList = new ArrayList<String>();
+		Map result = new HashMap<>();
 		
-		while (daily_Needed > 0 && !employee_Arr.isEmpty()) {
-			length = employee_Arr.size();
+		while (dailyNeeded > 0 && !employeeList.isEmpty()) {
+			length = employeeList.size();
 			int randomIndex = random.nextInt(length);
-
-//			System.out.println("randomIndex = " + randomIndex);
+		
+			String assign_Emploeey = employeeList.get(randomIndex).getName();
 			
-			shift_List.add(employee_Arr.get(randomIndex).getName());
-			employee_Arr.remove(employee_Arr.get(randomIndex).getName());
+//			System.out.println("randomIndex = " + randomIndex);
+			System.out.println("assign_Emploeey = " + assign_Emploeey);
+			
+			shiftList.add(assign_Emploeey);
+			employeeList.remove(randomIndex);
 
-			daily_Needed--;
+			dailyNeeded--;
 		}
+		
+		for(Employee employee:employeeList){
+			restList.add(employee.getName());
+		}
+		
+		result.put("shiftList",shiftList);
+		result.put("restList",restList);
 
-		return shift_List;
+		return result;
 	}
 }

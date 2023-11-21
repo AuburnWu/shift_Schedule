@@ -16,12 +16,18 @@ public class dayTypeCounter {
 //        System.out.println("firstDayOfMonth = " + firstDayOfMonth);
 //        System.out.println("daysInMonth = " + daysInMonth);
         Map day_Inform = new HashMap();
-        
+        int weekendCount = 0; 
+        		
         for (int i = 0; i < daysInMonth; i++) {
         	
         	LocalDate currentDate = firstDayOfMonth.plusDays(i);
 //        	當日所需人手
         	Integer employee_Needed = 2;
+        	
+        	if(currentDate.getDayOfWeek() == DayOfWeek.SATURDAY || currentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        		weekendCount++;
+        	}
+        	
         	if(currentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
         		employee_Needed = 1;
         	}
@@ -35,9 +41,10 @@ public class dayTypeCounter {
 //        	星期幾
         	day_Inform.put("DayOfWeek" + i,currentDate.getDayOfWeek().getValue());
 //        	day_Inform.put("DayOfWeek",currentDate.getDayOfWeek());
-        	day_Inform.put("employee_Needed" + i,employee_Needed);        	      	        	
+        	day_Inform.put("employee_Needed" + i,employee_Needed);     
+        	
         }
-        
+        day_Inform.put("weekendCount", weekendCount); 
         day_Inform.put("daysInMonth", daysInMonth);
         
         return day_Inform;
