@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class shift_Schaudle_Genrator {
@@ -70,7 +69,13 @@ public class shift_Schaudle_Genrator {
 			});
 
 //			判斷待指派人數是否足夠，否則以原表單指派
+//			若確認以已排除指定休假人員表單指派的話，累計其休假天數
 			if (employee_List.size() - adjest_List.size() >= daily_Needed) {
+				for(Employee employee:adjest_List) {
+					Integer employeeRestCount = employee.getRestCount();
+					employee.setRestCount(employeeRestCount + 1);
+				}
+//				從總表中移除指定休假成功的員工
 				employee_List.removeAll(adjest_List);
 			} else {
 //				System.out.println("employee_List.size = " +employee_List.size());
@@ -87,18 +92,19 @@ public class shift_Schaudle_Genrator {
 
 //			計算各員工休假天數
 			restList.forEach((employee) -> {
+//				System.out.println("into restList");
 				String employeeName = employee.getName();
 				Integer employeeRestCount = employee.getRestCount();
 //				System.out.println("S setRestCount, " + employeeName + ", " + employeeRestCount);
 				if (restList.contains(employee)) {
 					employee.setRestCount(employeeRestCount + 1);
 				}
-				System.err.println("E setRestCount, " + employeeName + ", " + employee.getRestCount());
+//				System.out.println("E setRestCount, " + employeeName + ", " + employee.getRestCount());
 			});
 
 //			星期幾轉換
-			String weekDay ="";
-			
+			String weekDay = "";
+
 			switch (dayOfWeek) {
 			case 1:
 				weekDay = "MON";
@@ -125,18 +131,17 @@ public class shift_Schaudle_Genrator {
 
 //			結果生成
 			if (dayOfWeek == 7) {
-//				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shiftList.get(0).getName());
+				System.out.println(
+						month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName());
 				resultList.add(month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName());
 				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount() + " , " + C.getName() + " " + C.getRestCount());
 			} else {
-				
-//				System.out.println(month + "/" + dayOfMonth + " " + dayOfWeek + " morning :  " + shiftList.get(0).getName()
-//				+ ", afternoon : " + shiftList.get(1).getName());
+				System.out.println(month + "/" + dayOfMonth + " " + weekDay + " morning :  "
+						+ shiftList.get(0).getName() + ", afternoon : " + shiftList.get(1).getName());
 				resultList.add(month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName()
 						+ ", afternoon : " + shiftList.get(1).getName());
 				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount() + " , " + C.getName() + " " + C.getRestCount());
 			}
-
 		}
 
 		String filePath = "D:\\TempTest\\test.txt";
@@ -150,28 +155,29 @@ public class shift_Schaudle_Genrator {
 		ArrayList<Employee> restList = new ArrayList<Employee>();
 		Map<String, ArrayList<Employee>> assignMap = new HashMap<String, ArrayList<Employee>>();
 
-		while (dailyNeeded > 0 && !employeeList.isEmpty()) {
-			length = employeeList.size();
-			int randomIndex = random.nextInt(length);
-
-			Employee assignEmploeey = employeeList.get(randomIndex);
-
-			System.out.println("assignEmploeey = " + assignEmploeey.getName());
-			if (assignEmploeey.getRestCount() >= 10) {
-				continue;
-			} else {
-				shiftList.add(assignEmploeey);
-				employeeList.remove(randomIndex);
-//				System.out.println("randomIndex = " + randomIndex);
-//				System.out.println("assign_Emploeey = " + assign_Emploeey.getName());
-				dailyNeeded--;
-			}
+		for (Employee employee : employeeList) {
+			System.out.println(employee.getName() + " ,RestCount = " +  employee.getRestCount());
+			if (employee.getRestCount() == 10 ) {
+				System.out.println("get over");				
+				shiftList.add(employee);
+			} 
+		}
+		
+		if(shiftList.size() == dailyNeeded) {
+			employeeList.removeAll(shiftList);
+		}	
+		
+		
+		while (shiftList.size() < dailyNeeded) {
+			System.out.println("get random");
+			int randomIndex = random.nextInt(employeeList.size());
+			Employee assignEmployee = employeeList.get(randomIndex);
+			
+			shiftList.add(assignEmployee);
+			employeeList.remove(randomIndex);
 		}
 
-//		for(Employee employee:employeeList){
-//			System.out.println("restList employee " + employee.getName());
 		restList = employeeList;
-//		}
 
 		assignMap.put("shiftList", shiftList);
 		assignMap.put("restList", restList);
