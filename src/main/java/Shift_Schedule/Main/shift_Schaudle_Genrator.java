@@ -1,10 +1,14 @@
 package Shift_Schedule.Main;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,9 +75,10 @@ public class shift_Schaudle_Genrator {
 //			判斷待指派人數是否足夠，否則以原表單指派
 //			若確認以已排除指定休假人員表單指派的話，累計其休假天數
 			if (employee_List.size() - adjest_List.size() >= daily_Needed) {
-				for(Employee employee:adjest_List) {
+				for (Employee employee : adjest_List) {
 					Integer employeeRestCount = employee.getRestCount();
 					employee.setRestCount(employeeRestCount + 1);
+//					System.out.println(employee.getName() +" "+ employee.getRestCount());
 				}
 //				從總表中移除指定休假成功的員工
 				employee_List.removeAll(adjest_List);
@@ -134,47 +139,58 @@ public class shift_Schaudle_Genrator {
 				System.out.println(
 						month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName());
 				resultList.add(month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName());
-				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount() + " , " + C.getName() + " " + C.getRestCount());
+				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount()
+						+ " , " + C.getName() + " " + C.getRestCount());
 			} else {
 				System.out.println(month + "/" + dayOfMonth + " " + weekDay + " morning :  "
 						+ shiftList.get(0).getName() + ", afternoon : " + shiftList.get(1).getName());
 				resultList.add(month + "/" + dayOfMonth + " " + weekDay + " morning :  " + shiftList.get(0).getName()
 						+ ", afternoon : " + shiftList.get(1).getName());
-				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount() + " , " + C.getName() + " " + C.getRestCount());
+				resultList.add(A.getName() + " " + A.getRestCount() + " , " + B.getName() + " " + B.getRestCount()
+						+ " , " + C.getName() + " " + C.getRestCount());
 			}
 		}
 
-		String filePath = "D:\\TempTest\\test.txt";
-		ssg.generateCSV(filePath, resultList);
+		ssg.generateCSV(resultList);
 	}
 
 	private Map<String, ArrayList<Employee>> getRandomEmployee(ArrayList<Employee> employeeList, Integer dailyNeeded) {
 		SecureRandom random = new SecureRandom();
-		Integer length = employeeList.size();
 		ArrayList<Employee> shiftList = new ArrayList<Employee>();
 		ArrayList<Employee> restList = new ArrayList<Employee>();
 		Map<String, ArrayList<Employee>> assignMap = new HashMap<String, ArrayList<Employee>>();
 
 		for (Employee employee : employeeList) {
-			System.out.println(employee.getName() + " ,RestCount = " +  employee.getRestCount());
-			if (employee.getRestCount() == 10 ) {
-				System.out.println("get over");				
+			System.out.println(employee.getName() + " ,RestCount = " + employee.getRestCount());
+			if (employee.getRestCount() == 10) {
+				System.out.println("get over");
 				shiftList.add(employee);
-			} 
+//				for(Employee sl:shiftList) {
+//					System.out.println("shiftList Name " + sl.getName());
+//				}			
+			}
 		}
-		
-		if(shiftList.size() == dailyNeeded) {
+		if (!shiftList.isEmpty()) {
 			employeeList.removeAll(shiftList);
-		}	
-		
-		
+		}
+
+		if (shiftList.size() == dailyNeeded) {
+			employeeList.removeAll(shiftList);
+//			System.out.println("employeeList " + employeeList);
+//			for(Employee el:employeeList) {
+//				System.out.println("employeeList Name " + el.getName());
+//			}
+		}
+
 		while (shiftList.size() < dailyNeeded) {
 			System.out.println("get random");
 			int randomIndex = random.nextInt(employeeList.size());
 			Employee assignEmployee = employeeList.get(randomIndex);
-			
+
+			System.out.println("employeeList Name " + assignEmployee.getName());
 			shiftList.add(assignEmployee);
 			employeeList.remove(randomIndex);
+
 		}
 
 		restList = employeeList;
@@ -185,14 +201,23 @@ public class shift_Schaudle_Genrator {
 		return assignMap;
 	}
 
-	private static void generateCSV(String filePath, ArrayList<String> data) {
-		try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-			// Write data
-			for (int i = 0; i < data.size(); i++) {
-				writer.println(data.get(i));
+	private static void generateCSV(ArrayList<String> data) {
+//		取得生成時間並藉此產生檔案名
+		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		String fileName = "file_" + timestamp + ".txt";
+//		設定檔案生成路徑
+		String filePath = "D:\\TempTest";
+
+		Path file = Paths.get(filePath, fileName);
+
+		try {
+			Files.createFile(file);
+
+			for (String line : data) {
+				Files.write(file, (line + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
 			}
 
-			System.out.println("CSV file generated successfully!");
+			System.out.println("File " + fileName + " generated successfully!");
 
 		} catch (IOException e) {
 			e.printStackTrace();
